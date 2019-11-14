@@ -44,13 +44,21 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/users', verifyUser, (req, res) => {
-    Users.find()
-        .then(users => {
-            res.status(200).json(users);
+    const id = req.decodedToken.sub;
+    Users.findBy({ id })
+        .first()
+        .then(user => {
+            Users.findByDept(user.department)
+                .then(users => {
+                    res.status(200).json(users);
+                })
+                .catch(err => {
+                    res.status(500).json(err);
+                });
         })
         .catch(err => {
             res.status(500).json(err);
-        })
+        });
 })
 
 
